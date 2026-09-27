@@ -61,10 +61,21 @@ export function HomeScreen() {
     navigate('/trail')
   }
 
-  if (loading || !profile) {
+  if (loading) {
     return (
       <main className="min-h-screen bg-[#f5f5f0] p-6">
         <p className="text-lg text-[#0b0c0c]">Loading...</p>
+      </main>
+    )
+  }
+
+  if (!profile) {
+    // SetupGate should prevent this; avoid an infinite Loading... if it slips through.
+    return (
+      <main className="min-h-screen bg-[#f5f5f0] p-6">
+        <p className="text-lg text-[#0b0c0c]">
+          No profile found. Please sign in again.
+        </p>
       </main>
     )
   }

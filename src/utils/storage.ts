@@ -10,6 +10,10 @@ export function setWelcomeComplete(): void {
   localStorage.setItem(WELCOME_COMPLETE_KEY, 'true')
 }
 
+export function clearWelcomeComplete(): void {
+  localStorage.removeItem(WELCOME_COMPLETE_KEY)
+}
+
 export function getStoredUserEmail(): string | null {
   return localStorage.getItem(USER_EMAIL_KEY)
 }
