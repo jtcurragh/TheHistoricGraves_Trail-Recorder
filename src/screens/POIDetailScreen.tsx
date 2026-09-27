@@ -265,7 +265,7 @@ export function POIDetailScreen() {
   }, {})
 
   // Include legacy category if not in the current category list
-  const allLabels = categorySource.map((c) => c.label)
+  const allLabels: string[] = categorySource.map((c) => c.label)
   if (category && !allLabels.includes(category)) {
     if (!categoriesByGroup['Other']) categoriesByGroup['Other'] = []
     categoriesByGroup['Other'] = [

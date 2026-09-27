@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { TrailCard } from '../components/TrailCard'
 import { getUserProfile } from '../db/userProfile'
+import { clearStoredUserEmail, clearWelcomeComplete } from '../utils/storage'
 import { getTrailsByGroupCode } from '../db/trails'
 import { getPOIsByTrailId } from '../db/pois'
 import { useTrail } from '../hooks/useTrail'
@@ -14,12 +15,23 @@ export function HomeScreen() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    let cancelled = false
+
     async function load() {
-      const p = await getUserProfile()
-      setProfile(p)
-      setLoading(false)
+      try {
+        const p = await getUserProfile()
+        if (!cancelled) setProfile(p)
+      } catch {
+        if (!cancelled) setProfile(null)
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
     }
-    load()
+
+    void load()
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   const [graveyardTrail, setGraveyardTrail] = useState<{
@@ -61,10 +73,25 @@ export function HomeScreen() {
     navigate('/trail')
   }
 
-  if (loading || !profile) {
+  useEffect(() => {
+    if (loading || profile) return
+    clearWelcomeComplete()
+    clearStoredUserEmail()
+    window.location.replace('/')
+  }, [loading, profile])
+
+  if (loading) {
     return (
       <main className="min-h-screen bg-[#f5f5f0] p-6">
         <p className="text-lg text-[#0b0c0c]">Loading...</p>
+      </main>
+    )
+  }
+
+  if (!profile) {
+    return (
+      <main className="min-h-screen bg-[#f5f5f0] p-6">
+        <p className="text-lg text-[#0b0c0c]">Returning to sign-in…</p>
       </main>
     )
   }

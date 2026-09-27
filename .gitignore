@@ -34,3 +34,5 @@ docs/debug-trail.html
 *.njsproj
 *.sln
 *.sw?
+.vercel
+.env*
