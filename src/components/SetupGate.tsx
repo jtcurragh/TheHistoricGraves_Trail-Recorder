@@ -4,40 +4,38 @@ import { WelcomeScreen } from '../screens/WelcomeScreen'
 import { AppLayout } from './AppLayout'
 import { HideBottomNavProvider } from '../context/HideBottomNavContext'
 import {
+  clearStoredUserEmail,
   clearWelcomeComplete,
-  isWelcomeComplete,
 } from '../utils/storage'
 import { getUserProfile } from '../db/userProfile'
 
 export function SetupGate() {
-  const [complete, setComplete] = useState(false)
   const [ready, setReady] = useState(false)
+  const [hasProfile, setHasProfile] = useState(false)
   const navigate = useNavigate()
 
   useEffect(() => {
     let cancelled = false
 
     async function verify() {
-      if (!isWelcomeComplete()) {
-        if (!cancelled) {
-          setComplete(false)
-          setReady(true)
+      try {
+        const profile = await getUserProfile()
+        if (cancelled) return
+        if (!profile) {
+          clearWelcomeComplete()
+          clearStoredUserEmail()
+          setHasProfile(false)
+        } else {
+          setHasProfile(true)
         }
-        return
-      }
-
-      const profile = await getUserProfile()
-      if (cancelled) return
-
-      if (!profile) {
-        // Stale gate flag (e.g. welcomeComplete / auth leftovers) with empty
-        // IndexedDB — send the user back to sign-in instead of hanging.
+      } catch {
+        if (cancelled) return
         clearWelcomeComplete()
-        setComplete(false)
-      } else {
-        setComplete(true)
+        clearStoredUserEmail()
+        setHasProfile(false)
+      } finally {
+        if (!cancelled) setReady(true)
       }
-      setReady(true)
     }
 
     void verify()
@@ -54,11 +52,11 @@ export function SetupGate() {
     )
   }
 
-  if (!complete) {
+  if (!hasProfile) {
     return (
       <WelcomeScreen
         onComplete={() => {
-          setComplete(true)
+          setHasProfile(true)
           navigate('/', { replace: true })
         }}
       />

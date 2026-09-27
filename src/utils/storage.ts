@@ -22,6 +22,10 @@ export function setStoredUserEmail(email: string): void {
   localStorage.setItem(USER_EMAIL_KEY, email)
 }
 
+export function clearStoredUserEmail(): void {
+  localStorage.removeItem(USER_EMAIL_KEY)
+}
+
 /** @deprecated Use isWelcomeComplete */
 export function isUserSetupComplete(): boolean {
   return isWelcomeComplete()
